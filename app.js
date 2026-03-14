@@ -220,8 +220,7 @@ async function selfRegister() {
 //  MULTI-USER STAFF MANAGEMENT
 // ═══════════════════════════════════════════════════════
 function renderStaffList() {
-  const el = document.getElementById("staff-list")
-  if (!el) return
+  const el = document.getElementById("staff-list"); if (!el) return
   el.innerHTML = (config.users || []).map(u => `
     <tr>
       <td><strong>${esc(u.user)}</strong></td>
@@ -229,22 +228,18 @@ function renderStaffList() {
       <td>${u.user !== config.user ? `<button class="tbtn tbtn-delete" onclick="removeStaff('${u.user}')">🗑️</button>` : `<span style="color:var(--muted);font-size:0.8rem">Owner</span>`}</td>
     </tr>`).join("")
 }
-
 function addStaff() {
-  const u = val("new-staff-user"), p = val("new-staff-pass"), r = val("new-staff-role")
-  if (!u || !p) return toast("⚠️ Username and password required", "var(--red)")
-  if (config.users.find(x => x.user === u)) return toast("⚠️ Username already exists", "var(--red)")
-  config.users.push({ user: u, pass: p, role: r })
-  saveConfig(); renderStaffList()
-  document.getElementById("new-staff-user").value = ""
-  document.getElementById("new-staff-pass").value = ""
+  const u=val("new-staff-user"), p=val("new-staff-pass"), r=val("new-staff-role")
+  if (!u||!p) return toast("⚠️ Username and password required","var(--red)")
+  if (config.users.find(x=>x.user===u)) return toast("⚠️ Username already exists","var(--red)")
+  config.users.push({user:u,pass:p,role:r}); saveConfig(); renderStaffList()
+  document.getElementById("new-staff-user").value=""; document.getElementById("new-staff-pass").value=""
   toast(`✅ Staff '${u}' added as ${r}!`)
 }
-
 function removeStaff(username) {
   if (!confirm(`Remove ${username}?`)) return
-  config.users = config.users.filter(x => x.user !== username)
-  saveConfig(); renderStaffList(); toast(`🗑️ ${username} removed.`, "var(--red)")
+  config.users=config.users.filter(x=>x.user!==username); saveConfig(); renderStaffList()
+  toast(`🗑️ ${username} removed.`,"var(--red)")
 }
 
 // ═══════════════════════════════════════════════════════
@@ -255,9 +250,13 @@ function showPage(page) {
   document.querySelectorAll(".nav-item").forEach(el => el.classList.remove("active"))
   show("page-" + page); document.getElementById("nav-" + page)?.classList.add("active")
   closeSidebar()
-  if (page === "dashboard") renderDashboard()
-  if (page === "members")   renderMembers()
-  if (page === "finances")  renderFinances()
+  if (page === "dashboard")  renderDashboard()
+  if (page === "members")    renderMembers()
+  if (page === "finances")   renderFinances()
+  if (page === "attendance") {
+    document.getElementById("att-date").value = todayISO()
+    renderAttendance()
+  }
 }
 
 // ═══════════════════════════════════════════════════════
@@ -281,9 +280,28 @@ function renderDashboard() {
   setText("stat-expired", expCount)
   const profit = rev - expTotal
   const pEl = document.getElementById("stat-profit")
-  pEl.textContent  = "PKR " + profit.toLocaleString()
-  pEl.style.color  = profit >= 0 ? "var(--green)" : "var(--red)"
+  pEl.textContent = "PKR " + profit.toLocaleString()
+  pEl.style.color = profit >= 0 ? "var(--green)" : "var(--red)"
   setText("dash-date", new Date().toLocaleDateString("en-PK", { weekday:"long", year:"numeric", month:"long", day:"numeric" }))
+
+  // ── Expiring Soon (next 7 days) ──
+  const in7 = new Date(); in7.setDate(in7.getDate() + 7); const in7Str = in7.toISOString().split("T")[0]
+  const expiring = members.filter(m => m.expiry >= todayStr && m.expiry <= in7Str && m.plan !== "trial" && m.status !== "pending")
+  const exBox = document.getElementById("expiring-box"), exTb = document.getElementById("expiringTable")
+  if (expiring.length) {
+    exBox.style.display = "block"
+    exTb.innerHTML = expiring.map(m => {
+      const daysLeft = Math.ceil((new Date(m.expiry) - new Date(todayStr)) / 86400000)
+      const waNum = parsePhoneToWA(m.phone)
+      const waText = `Hi ${m.name}, your gym membership at ${config.gymName||'the gym'} expires in ${daysLeft} day(s) on ${m.expiry}. Please renew soon!`
+      return `<tr>
+        <td><strong>${esc(m.name)}</strong></td>
+        <td>${esc(m.phone)}</td>
+        <td style="color:var(--yellow);font-weight:700">${m.expiry} <span style="font-size:0.75rem;color:var(--muted)">(${daysLeft}d)</span></td>
+        <td>${waNum ? `<a href="https://wa.me/${waNum}?text=${encodeURIComponent(waText)}" target="_blank" class="wa-btn">💬 Remind</a>` : "-"}</td>
+      </tr>`
+    }).join("")
+  } else exBox.style.display = "none"
 
   // Approvals
   const appBox = document.getElementById("approvals-box"), appTab = document.getElementById("approvalsTable")
@@ -297,6 +315,106 @@ function renderDashboard() {
 
 function drawCharts(curRev, curExp) {
   if (revChart) revChart.destroy(); if (attChart) attChart.destroy()
+  Chart.defaults.color = "#94a3b8"; Chart.defaults.font.family = "Inter"
+
+  revChart = new Chart(document.getElementById('revenueChart').getContext('2d'), {
+    type: 'line', data: { labels: ["Jan","Feb","Mar","Apr","May","Jun"],
+      datasets: [
+        { label: 'Revenue', data: [12000,19000,15000,22000,30000, curRev], borderColor: '#10b981', backgroundColor: '#10b98122', fill: true, tension: 0.4 },
+        { label: 'Expenses', data: [5000,8000,7000,12000,9000, curExp], borderColor: '#ef4444', backgroundColor: 'transparent', tension: 0.4, borderDash: [5,5] }
+      ]
+    }, options: { responsive: true, maintainAspectRatio: false, plugins:{legend:{display:true, position:'bottom'}} }
+  })
+
+  const attTotal = members.reduce((s,m) => s+(m.visits||0), 0)
+  attChart = new Chart(document.getElementById('attendanceChart').getContext('2d'), {
+    type: 'bar', data: { labels: ["Jan","Feb","Mar","Apr","May","Jun"],
+      datasets: [{ label: 'Visits', data: [50,80,120,90,150,attTotal], backgroundColor: '#3b82f6', borderRadius: 4 }]
+    }, options: { responsive: true, maintainAspectRatio: false, plugins:{legend:{display:false}} }
+  })
+}
+
+// ═══════════════════════════════════════════════════════
+//  ATTENDANCE REGISTER PAGE
+// ═══════════════════════════════════════════════════════
+async function renderAttendance() {
+  const selDate = document.getElementById("att-date").value || todayISO()
+  const search  = (document.getElementById("att-search")?.value || "").toLowerCase()
+  const today   = todayISO()
+
+  // Filter by search
+  const list = members.filter(m => !search || m.name.toLowerCase().includes(search) || m.id.toLowerCase().includes(search))
+
+  // Count how many visited today
+  const todayCount = members.filter(m => m.attendLog && m.attendLog.includes(selDate)).length
+  setText("att-today-count", todayCount)
+
+  const tbody = document.getElementById("attendanceTable")
+  if (!list.length) return tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted)">No members</td></tr>`
+
+  tbody.innerHTML = list.map(m => {
+    const isExp = m.expiry < today
+    const visitedToday = m.attendLog && m.attendLog.includes(selDate)
+    const badge = isExp ? `<span class="badge expired">🔴 Expired</span>` : (m.plan === "trial" ? `<span class="badge trial">🟡 Trial</span>` : `<span class="badge active">🟢 Active</span>`)
+    const todayMark = visitedToday
+      ? `<span style="color:var(--green);font-weight:700">✅ Present</span>`
+      : `<span style="color:var(--muted)">—</span>`
+
+    return `<tr>
+      <td style="font-size:0.75rem;color:var(--muted)">${m.id}</td>
+      <td><strong>${esc(m.name)}</strong><br><span style="font-size:0.78rem;color:var(--muted)">${esc(m.phone)}</span></td>
+      <td>${badge}</td>
+      <td>${todayMark}</td>
+      <td style="font-weight:700">${m.visits||0}</td>
+      <td>
+        ${visitedToday
+          ? `<button class="tbtn tbtn-delete" onclick="undoVisitDate('${m.id}','${selDate}')">↩ Undo</button>`
+          : `<button class="tbtn tbtn-attend" onclick="markVisitDate('${m.id}','${selDate}')">${isExp?"⚠️":"📌"} Mark</button>`
+        }
+      </td>
+    </tr>`
+  }).join("")
+}
+
+async function markVisitDate(id, date) {
+  const m = members.find(x => x.id === id); if (!m) return
+  if (m.expiry < todayISO()) return toast(`⚠️ ${m.name} is Expired!`, "var(--red)")
+  if (!m.attendLog) m.attendLog = []
+  if (!m.attendLog.includes(date)) m.attendLog.push(date)
+  m.visits = m.attendLog.length
+  await idbPut("members", m); renderAttendance(); toast(`📌 ${m.name} marked Present!`, "var(--blue)")
+}
+
+async function undoVisitDate(id, date) {
+  const m = members.find(x => x.id === id); if (!m) return
+  m.attendLog = (m.attendLog || []).filter(d => d !== date)
+  m.visits = m.attendLog.length
+  await idbPut("members", m); renderAttendance(); toast(`↩ Removed ${m.name}'s mark`, "var(--red)")
+}
+
+function printAttendance() {
+  const selDate = document.getElementById("att-date").value || todayISO()
+  const visited = members.filter(m => m.attendLog && m.attendLog.includes(selDate))
+  const p = document.getElementById("print-container")
+  p.innerHTML = `
+    <div class="print-head">
+      <div class="print-title">${config.gymName || "Gym Manager"}</div>
+      <div class="print-meta">Daily Attendance Register — ${selDate}</div>
+    </div>
+    <table border="1" cellpadding="8" style="width:100%;border-collapse:collapse;font-size:14px">
+      <thead><tr><th>#</th><th>ID</th><th>Name</th><th>Phone</th><th>Plan</th><th>Expiry</th><th>Signature</th></tr></thead>
+      <tbody>
+        ${members.map((m, i) => {
+          const ck = m.attendLog && m.attendLog.includes(selDate) ? "✓" : ""
+          return `<tr><td>${i+1}</td><td>${m.id}</td><td>${m.name}</td><td>${m.phone}</td><td>${m.plan}</td><td>${m.expiry}</td><td style="width:100px">${ck}</td></tr>`
+        }).join("")}
+      </tbody>
+    </table>
+    <p style="margin-top:20px;font-size:12px">Present: ${visited.length} / Total: ${members.length}</p>`
+  window.print()
+}
+function drawCharts2_DUMMY_REMOVED() {}  // cleanup placeholder
+function _cleanup() {
   Chart.defaults.color = "#94a3b8"; Chart.defaults.font.family = "Inter"
 
   revChart = new Chart(document.getElementById('revenueChart').getContext('2d'), {

@@ -99,6 +99,7 @@
     <nav class="sidebar-nav">
       <button class="nav-item active" id="nav-dashboard" onclick="showPage('dashboard')"><span>📊</span> Dashboard</button>
       <button class="nav-item" id="nav-members" onclick="showPage('members')"><span>👥</span> Members</button>
+      <button class="nav-item" id="nav-attendance" onclick="showPage('attendance')"><span>📋</span> Attendance</button>
       <button class="nav-item" id="nav-finances" onclick="showPage('finances')"><span>💰</span> Finances</button>
       <button class="nav-item scanner-btn" onclick="openScanner()"><span>📷</span> Scanner</button>
       <button class="nav-item" style="background:#1e3a8a;color:#bfdbfe;font-weight:600" onclick="openRegisterFromAdmin()"><span>📝</span> Register</button>
@@ -128,6 +129,12 @@
         <div class="card"><div class="card-header"><h3>📌 Recent Attendance</h3></div><div class="chart-container"><canvas id="attendanceChart"></canvas></div></div>
       </div>
       
+      <!-- Expiring Soon Alert -->
+      <div class="card" id="expiring-box" style="display:none;border-color:#b45309">
+        <div class="card-header"><h3>⏰ Expiring in 7 Days</h3></div>
+        <div class="table-wrap"><table><thead><tr><th>Member</th><th>Phone</th><th>Expiry</th><th>Notify</th></tr></thead><tbody id="expiringTable"></tbody></table></div>
+      </div>
+
       <!-- Pending Approvals Box -->
       <div class="card" id="approvals-box" style="display:none; border-color:var(--yellow)">
         <div class="card-header"><h3>⏳ Pending Payments</h3></div>
@@ -135,6 +142,32 @@
           <table>
             <thead><tr><th>Member</th><th>Plan</th><th>Screenshot</th><th>Action</th></tr></thead>
             <tbody id="approvalsTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── ATTENDANCE REGISTER ── -->
+    <section id="page-attendance" class="page hidden">
+      <div class="page-header">
+        <h2>📋 Daily Attendance Register</h2>
+        <div style="display:flex;gap:10px;align-items:center">
+          <input type="date" id="att-date" style="width:auto" onchange="renderAttendance()">
+          <button class="btn-secondary sm" onclick="printAttendance()">🖨️ Print</button>
+        </div>
+      </div>
+      <!-- Quick manual mark -->
+      <div class="card">
+        <div class="search-row">
+          <input type="text" id="att-search" placeholder="🔍 Search member to mark..." oninput="renderAttendance()">
+          <span style="color:var(--muted);font-size:0.85rem;white-space:nowrap">Total today: <strong id="att-today-count">0</strong></span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Today</th><th>Total Visits</th><th>Mark</th></tr></thead>
+            <tbody id="attendanceTable"></tbody>
           </table>
         </div>
       </div>

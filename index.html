@@ -3,12 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gym Manager Pro V2</title>
+  <title>Gym Manager Pro V3</title>
   <link rel="manifest" href="manifest.json">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   
-  <!-- CDNs for Advanced Features -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
@@ -16,41 +15,32 @@
 <body>
 
 <!-- ═══════════════════════════════════════════════════
-     SCREEN 1: SETUP
+     SETUP & LOGIN
 ════════════════════════════════════════════════════ -->
 <div id="screen-setup" class="auth-screen hidden">
   <div class="auth-card">
     <div class="auth-logo">🏋️</div>
     <h1 class="auth-title">Welcome to Gym Manager</h1>
-    <p class="auth-sub">Set up your gym profile to get started</p>
+    <p class="auth-sub">Set up your gym profile</p>
     <div class="auth-form">
-      <label>Gym Name</label>
-      <input id="setup-gymname" type="text" placeholder="e.g. Elite Fitness Club">
-      <label>Admin Username</label>
-      <input id="setup-user" type="text" placeholder="e.g. admin">
-      <label>Admin Password</label>
-      <input id="setup-pass" type="password" placeholder="Choose a strong password">
-      <label>Confirm Password</label>
-      <input id="setup-pass2" type="password" placeholder="Repeat your password">
+      <input id="setup-gymname" type="text" placeholder="Gym Name">
+      <input id="setup-user" type="text" placeholder="Admin Username">
+      <input id="setup-pass" type="password" placeholder="Password">
+      <input id="setup-pass2" type="password" placeholder="Confirm Password">
       <button class="btn-primary full-width" onclick="setupGym()">🚀 Create Account</button>
       <div id="setup-error" class="auth-error hidden"></div>
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════
-     SCREEN 2: LOGIN
-════════════════════════════════════════════════════ -->
 <div id="screen-login" class="auth-screen hidden">
   <div class="auth-card">
     <div class="auth-logo">🏋️</div>
     <h1 class="auth-title" id="login-gymname">Gym Manager</h1>
     <p class="auth-sub">Sign in to your admin panel</p>
     <div class="auth-form">
-      <label>Username</label>
-      <input id="login-user" type="text" placeholder="Enter username" onkeydown="if(event.key==='Enter')login()">
-      <label>Password</label>
-      <input id="login-pass" type="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')login()">
+      <input id="login-user" type="text" placeholder="Username" onkeydown="if(event.key==='Enter')login()">
+      <input id="login-pass" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')login()">
       <button class="btn-primary full-width" onclick="login()">🔐 Login</button>
       <div id="login-error" class="auth-error hidden"></div>
     </div>
@@ -58,138 +48,104 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════
-     SCREEN 3: MAIN APP
+     MAIN ADMIN APP
 ════════════════════════════════════════════════════ -->
 <div id="screen-app" class="hidden">
-
-  <!-- SIDEBAR -->
   <aside id="sidebar">
     <div class="sidebar-logo">
       <span class="sidebar-icon">🏋️</span>
-      <span class="sidebar-title" id="sidebar-gymname">Gym Manager</span>
+      <span class="sidebar-title" id="sidebar-gymname">Gym</span>
     </div>
     <nav class="sidebar-nav">
-      <button class="nav-item active" id="nav-dashboard" onclick="showPage('dashboard')">
-        <span>📊</span> Dashboard
-      </button>
-      <button class="nav-item" id="nav-members" onclick="showPage('members')">
-        <span>👥</span> Members
-      </button>
-      <button class="nav-item scanner-btn" onclick="openScanner()">
-        <span>📷</span> QR Scanner
-      </button>
-      <button class="nav-item" id="nav-settings" onclick="showPage('settings')">
-        <span>⚙️</span> Settings
-      </button>
+      <button class="nav-item active" id="nav-dashboard" onclick="showPage('dashboard')"><span>📊</span> Dashboard</button>
+      <button class="nav-item" id="nav-members" onclick="showPage('members')"><span>👥</span> Members</button>
+      <button class="nav-item scanner-btn" onclick="openScanner()"><span>📷</span> Scanner</button>
+      <button class="nav-item" id="nav-settings" onclick="showPage('settings')"><span>⚙️</span> Settings</button>
     </nav>
     <button class="logout-btn" onclick="logout()">🚪 Logout</button>
   </aside>
 
-  <!-- MAIN CONTENT -->
   <div class="main-content">
     <header class="topbar">
       <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
       <div class="topbar-title" id="topbar-title">Dashboard</div>
-      <div class="topbar-user">
-        <span id="topbar-username">Admin</span>
-        <div class="avatar" id="topbar-avatar">A</div>
-      </div>
+      <div class="topbar-user"><span id="topbar-username">Admin</span><div class="avatar" id="topbar-avatar">A</div></div>
     </header>
 
-    <!-- ── PAGE: DASHBOARD ── -->
+    <!-- ── DASHBOARD ── -->
     <section id="page-dashboard" class="page">
-      <div class="page-header">
-        <h2>📊 Dashboard</h2>
-        <p class="page-sub" id="dash-date"></p>
-      </div>
-
-      <!-- Stat Cards -->
+      <div class="page-header"><h2>📊 Dashboard</h2><p class="page-sub" id="dash-date"></p></div>
       <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-top"><span class="stat-icon">👥</span><span class="stat-label">Total Members</span></div>
-          <div class="stat-value" id="stat-total">0</div>
-        </div>
-        <div class="stat-card green">
-          <div class="stat-top"><span class="stat-icon">✅</span><span class="stat-label">Active Members</span></div>
-          <div class="stat-value" id="stat-active">0</div>
-        </div>
-        <div class="stat-card red">
-          <div class="stat-top"><span class="stat-icon">⚠️</span><span class="stat-label">Expired / Unpaid</span></div>
-          <div class="stat-value" id="stat-expired">0</div>
-        </div>
-        <div class="stat-card blue">
-          <div class="stat-top"><span class="stat-icon">💰</span><span class="stat-label">Monthly Revenue</span></div>
-          <div class="stat-value" id="stat-revenue">0</div><div class="stat-sub">PKR Collected</div>
-        </div>
+        <div class="stat-card"><div class="stat-top"><span class="stat-icon">👥</span><span class="stat-label">Total</span></div><div class="stat-value" id="stat-total">0</div></div>
+        <div class="stat-card green"><div class="stat-top"><span class="stat-icon">✅</span><span class="stat-label">Active</span></div><div class="stat-value" id="stat-active">0</div></div>
+        <div class="stat-card yellow"><div class="stat-top"><span class="stat-icon">🟡</span><span class="stat-label">Trials</span></div><div class="stat-value" id="stat-trials">0</div></div>
+        <div class="stat-card red"><div class="stat-top"><span class="stat-icon">⚠️</span><span class="stat-label">Expired</span></div><div class="stat-value" id="stat-expired">0</div></div>
       </div>
-
-      <!-- Advanced Charts Grid -->
       <div class="charts-grid">
-        <div class="card">
-          <div class="card-header"><h3>📈 Revenue Trends (PKR)</h3></div>
-          <div class="chart-container">
-            <canvas id="revenueChart"></canvas>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header"><h3>📌 Recent Attendance</h3></div>
-          <div class="chart-container">
-            <canvas id="attendanceChart"></canvas>
-          </div>
+        <div class="card"><div class="card-header"><h3>📈 Revenue Trends (PKR)</h3></div><div class="chart-container"><canvas id="revenueChart"></canvas></div></div>
+        <div class="card"><div class="card-header"><h3>📌 Recent Attendance</h3></div><div class="chart-container"><canvas id="attendanceChart"></canvas></div></div>
+      </div>
+      
+      <!-- Pending Approvals Box -->
+      <div class="card" id="approvals-box" style="display:none; border-color:var(--yellow)">
+        <div class="card-header"><h3>⏳ Pending Payments</h3></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Member</th><th>Plan</th><th>Screenshot</th><th>Action</th></tr></thead>
+            <tbody id="approvalsTable"></tbody>
+          </table>
         </div>
       </div>
-
     </section>
 
-    <!-- ── PAGE: MEMBERS ── -->
+    <!-- ── MEMBERS ── -->
     <section id="page-members" class="page hidden">
       <div class="page-header">
         <h2>👥 Members & Subscriptions</h2>
         <button class="btn-primary" onclick="openAddModal()">➕ Add Member</button>
       </div>
-
       <div class="card">
         <div class="search-row">
-          <input type="text" id="search" placeholder="🔍 Search name, phone..." oninput="renderMembers()">
+          <input type="text" id="search" placeholder="🔍 Search..." oninput="renderMembers()">
           <select id="filterStatus" onchange="renderMembers()">
-            <option value="all">All Members</option>
+            <option value="all">All</option>
             <option value="active">🟢 Active</option>
+            <option value="trial">🟡 Trial</option>
             <option value="expired">🔴 Expired</option>
+            <option value="pending">⏳ Pending Appr</option>
           </select>
-          <button class="btn-secondary sm" onclick="exportCSV()">📥 Export CSV</button>
+          <button class="btn-secondary sm" onclick="exportCSV()">📥 Export</button>
         </div>
       </div>
-
       <div class="card">
         <div class="table-wrap">
           <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name & Phone</th>
-                <th>Plan & Fee</th>
-                <th>Sub Expiry</th>
-                <th>Status</th>
-                <th>Visits</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
+            <thead><tr><th>ID</th><th>Name</th><th>Plan/Fee</th><th>Expiry</th><th>Status</th><th>Visits</th><th>Actions</th></tr></thead>
             <tbody id="membersTable"></tbody>
           </table>
         </div>
       </div>
     </section>
 
-    <!-- ── PAGE: SETTINGS ── -->
+    <!-- ── SETTINGS ── -->
     <section id="page-settings" class="page hidden">
-      <!-- Unchanged settings logic -->
       <div class="page-header"><h2>⚙️ Settings</h2></div>
       <div class="settings-grid">
         <div class="card">
-          <h3>🏢 Gym Info</h3>
+          <h3>🏢 Gym Profile</h3>
           <div class="form-col">
-            <input id="set-gymname" type="text" placeholder="Gym Name">
+            <label>Name</label><input id="set-gymname" type="text" placeholder="Gym Name">
             <button class="btn-primary" onclick="saveGymName()">💾 Save Name</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>💳 Payment details</h3>
+          <div class="form-col">
+            <label>Local Bank / Easypaisa Details</label>
+            <textarea id="set-bank" placeholder="e.g. Easypaisa: 0300-1234567 (Ahmed Khan)" style="background:var(--bg);color:var(--text);border:1px solid #2d3f58;border-radius:10px;padding:10px;min-height:80px"></textarea>
+            <label>International Stripe Checkout Link</label>
+            <input id="set-stripe" type="url" placeholder="https://buy.stripe.com/...">
+            <button class="btn-primary" onclick="saveBankDetails()">💳 Save Payments Info</button>
           </div>
         </div>
       </div>
@@ -198,42 +154,65 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════
-     SCANNER MODAL
+     MEMBER PAYMENT PORTAL (KIOSK MODE)
 ════════════════════════════════════════════════════ -->
-<div id="scanner-modal" class="modal-overlay hidden">
-  <div class="modal-card scanner-card">
-    <div class="modal-header">
-      <h3>📷 Scan Member QR Code</h3>
-      <button class="modal-close" onclick="closeScanner()">✕</button>
+<div id="screen-checkout" class="auth-screen hidden">
+  <div class="auth-card" style="max-width:500px">
+    <button class="btn-secondary sm" style="margin-bottom:15px" onclick="cancelCheckout()">← Back to Desk</button>
+    <div class="auth-logo" style="font-size:2.5rem;color:var(--yellow)">💳</div>
+    <h1 class="auth-title">Complete Payment</h1>
+    <p class="auth-sub" id="chk-member-name">Member Name</p>
+    
+    <div style="background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:15px; margin-bottom:20px; text-align:center">
+      <p style="color:var(--muted);font-size:0.8rem;text-transform:uppercase">Total Due</p>
+      <h2 style="font-size:2rem;color:var(--green);margin-top:5px" id="chk-amount">PKR 0</h2>
     </div>
-    <div id="reader-container">
-      <div id="qr-reader" style="width: 100%;"></div>
+
+    <!-- Payment Types -->
+    <div class="checkout-tabs" style="display:flex;gap:10px;margin-bottom:20px">
+      <button class="btn-primary full-width" id="tab-local" onclick="showChkTab('local')" style="margin:0;background:var(--surface2);color:var(--text)">🇵🇰 Local Transfer</button>
+      <button class="btn-primary full-width" id="tab-card" onclick="showChkTab('card')" style="margin:0;background:var(--surface2);color:var(--text)">🌍 Credit Card</button>
     </div>
-    <div id="scan-result" class="scan-result hidden">
-      <div class="scan-icon">✅</div>
-      <h4 id="scan-name">Ahmed Khan</h4>
-      <p id="scan-status">Attendance Logged!</p>
+
+    <!-- Local Transfer Flow -->
+    <div id="chk-flow-local">
+      <div style="background:#064e3b;border:1px dashed #10b981;border-radius:12px;padding:15px;margin-bottom:20px;color:#a7f3d0">
+        <p style="font-size:0.8rem;text-transform:uppercase;font-weight:700;margin-bottom:5px">Send Money Here:</p>
+        <p id="chk-bank-details" style="font-size:0.95rem;line-height:1.4">Loading...</p>
+      </div>
+
+      <div class="form-group" style="margin-bottom:20px">
+        <label>Upload Payment Screenshot</label>
+        <input type="file" id="chk-screenshot" accept="image/*" style="padding:8px">
+      </div>
+      
+      <button class="btn-primary full-width" style="margin:0" onclick="submitScreenshot()">📤 Submit Request</button>
     </div>
+
+    <!-- Card Flow -->
+    <div id="chk-flow-card" class="hidden">
+      <p style="color:var(--muted);font-size:0.9rem;text-align:center;margin-bottom:20px">You will be redirected to our secure Stripe checkout page for international cards.</p>
+      <button class="btn-primary full-width" style="margin:0;background:#6366f1;color:#fff" onclick="goToStripe()">💳 Pay securely with Stripe</button>
+    </div>
+
   </div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════
-     ADD / EDIT MEMBER MODAL (incl. QR & Subs)
+     MODALS
 ════════════════════════════════════════════════════ -->
+<!-- Add/Edit Member -->
 <div id="modal-overlay" class="modal-overlay hidden" onclick="closeModal(event)">
   <div class="modal-card">
-    <div class="modal-header">
-      <h3 id="modal-title">➕ Add New Member</h3>
-      <button class="modal-close" onclick="closeAddModal()">✕</button>
-    </div>
-    
+    <div class="modal-header"><h3 id="modal-title">➕ Add Member</h3><button class="modal-close" onclick="closeAddModal()">✕</button></div>
     <div class="modal-body-split">
       <div class="form-grid">
-        <div class="form-group"><label>Full Name *</label><input id="m-name" type="text"></div>
+        <div class="form-group"><label>Name *</label><input id="m-name" type="text"></div>
         <div class="form-group"><label>Phone *</label><input id="m-phone" type="tel"></div>
         <div class="form-group"><label>Monthly Fee (PKR) *</label><input id="m-fee" type="number"></div>
         <div class="form-group"><label>Plan Duration</label>
           <select id="m-plan">
+            <option value="trial" style="background:var(--yellow);color:#000;font-weight:700">🟡 3-Day Trial (Free)</option>
             <option value="1">1 Month</option>
             <option value="3">3 Months</option>
             <option value="6">6 Months</option>
@@ -243,26 +222,41 @@
         <div class="form-group"><label>Start Date</label><input id="m-date" type="date"></div>
         <div class="form-group"><label>Expiry Date</label><input id="m-expiry" type="date"></div>
       </div>
-      
-      <!-- QR Code Display -->
       <div class="qr-col hidden" id="qr-section">
-        <label style="font-size:0.8rem;color:var(--muted);text-transform:uppercase;">Member Card (QR)</label>
-        <div class="qr-box">
-          <canvas id="member-qr" width="128" height="128"></canvas>
-        </div>
-        <p id="qr-id-text" style="font-size:0.8rem;color:var(--green);margin-top:8px;text-align:center"></p>
-        <button class="btn-secondary sm" style="width:100%;margin-top:10px" onclick="downloadQR()">📥 Download QR</button>
+        <label style="font-size:0.8rem;color:var(--muted)">QR Code</label>
+        <div class="qr-box"><canvas id="member-qr" width="128" height="128"></canvas></div>
+        <p id="qr-id-text" style="font-size:0.8rem;color:var(--green);margin-top:8px"></p>
+        <button class="btn-secondary sm" style="width:100%;margin-top:10px" onclick="downloadQR()">📥 Download</button>
       </div>
     </div>
-
     <input type="hidden" id="m-edit-id" value="">
-    <div class="modal-footer">
-      <button class="btn-secondary" onclick="closeAddModal()">Cancel</button>
-      <button class="btn-primary" onclick="saveMember()">💾 Save Member</button>
+    <div class="modal-footer"><button class="btn-secondary" onclick="closeAddModal()">Cancel</button><button class="btn-primary" onclick="saveMember()">💾 Save</button></div>
+  </div>
+</div>
+
+<!-- Scanner -->
+<div id="scanner-modal" class="modal-overlay hidden">
+  <div class="modal-card scanner-card">
+    <div class="modal-header"><h3>📷 Scan QR</h3><button class="modal-close" onclick="closeScanner()">✕</button></div>
+    <div id="reader-container"><div id="qr-reader" style="width: 100%;"></div></div>
+    <div id="scan-result" class="scan-result hidden"><div class="scan-icon">✅</div><h4 id="scan-name">Name</h4><p id="scan-status">Logged!</p></div>
+  </div>
+</div>
+
+<!-- Image Viewer Modal (For Admin to see screenshots) -->
+<div id="image-modal" class="modal-overlay hidden" onclick="if(event.target.id==='image-modal')document.getElementById('image-modal').classList.add('hidden')">
+  <div class="modal-card" style="max-width:400px;text-align:center">
+    <div class="modal-header"><h3>🧾 Payment Proof</h3><button class="modal-close" onclick="document.getElementById('image-modal').classList.add('hidden')">✕</button></div>
+    <img id="view-screenshot" src="" style="width:100%;border-radius:12px;margin-bottom:15px">
+    <input type="hidden" id="approve-id">
+    <div class="checkout-tabs" style="display:flex;gap:10px">
+      <button class="btn-danger full-width" style="margin:0" onclick="rejectPayment()">❌ Reject</button>
+      <button class="btn-primary full-width" style="margin:0" onclick="approvePayment()">✅ Approve</button>
     </div>
   </div>
 </div>
 
+<!-- Toast & Audio -->
 <div id="toast" class="toast"></div>
 <audio id="beep" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
 

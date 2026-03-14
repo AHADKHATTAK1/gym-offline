@@ -128,21 +128,38 @@ function setupGym() {
 
 function login() {
   const u = val("login-user"), p = val("login-pass")
-  const found = config.users?.find(x => x.user === u && x.pass === p)
-  if (found) {
-    currentUser = { user: found.user, role: found.role }
+  if (!u || !p) return showErr("login-error", "❌ Please enter details.")
+
+  // 1. Check Admin/Staff
+  const staff = config.users?.find(x => x.user === u && x.pass === p)
+  if (staff) {
+    currentUser = { user: staff.user, role: staff.role, type: "admin" }
     sessionStorage.setItem(KEY_SESSION, JSON.stringify(currentUser)); launchApp()
-  } else showErr("login-error", "❌ Incorrect username or password.")
+    return
+  }
+
+  // 2. Check Member
+  const mem = members.find(x => x.phone === u || x.id === u)
+  if (mem && (p === mem.id || p === mem.phone)) {
+    currentUser = { user: mem.name, id: mem.id, type: "member" }
+    sessionStorage.setItem(KEY_SESSION, JSON.stringify(currentUser)); launchMemberPortal(mem)
+    return
+  }
+
+  showErr("login-error", "❌ Incorrect credentials.")
 }
 
 function logout() {
-  sessionStorage.removeItem(KEY_SESSION); currentUser = null; hide("screen-app"); show("screen-login")
+  sessionStorage.removeItem(KEY_SESSION); currentUser = null
+  hide("screen-app"); hide("screen-member"); show("screen-login")
   document.getElementById("login-pass").value = ""
   setText("login-gymname", config.gymName || "Gym Manager")
 }
 
 function launchApp() {
-  hide("screen-setup"); hide("screen-login"); hide("screen-register"); show("screen-app")
+  if (currentUser?.type === "member") return launchMemberPortal(members.find(x=>x.id===currentUser.id))
+  
+  hide("screen-setup"); hide("screen-login"); hide("screen-register"); hide("screen-member"); show("screen-app")
   const gn = config.gymName || "Gym Manager"
   setText("sidebar-gymname", gn); setText("topbar-username", currentUser.user)
   setText("topbar-avatar", currentUser.user[0].toUpperCase())
@@ -152,6 +169,40 @@ function launchApp() {
   document.getElementById("exp-date").value = todayISO()
   renderStaffList()
   showPage("dashboard")
+}
+
+function launchMemberPortal(m) {
+  hide("screen-setup"); hide("screen-login"); hide("screen-register"); hide("screen-app"); show("screen-member")
+  setText("mem-portal-name", m.name)
+  setText("mem-portal-id", m.id)
+  
+  currentCheckoutId = m.id // so payments link knows who to charge
+  
+  const todayStr = todayISO()
+  const stBox = document.getElementById("mem-portal-status-box")
+  const payBtn = document.getElementById("mem-portal-pay-btn")
+  
+  if (m.status === "pending") {
+    stBox.style.cssText = "background:#b45309;color:#fff"
+    stBox.innerHTML = "⏳ Pending Gateway Appr."
+    payBtn.classList.add("hidden")
+  } else if (m.expiry < todayStr) {
+    stBox.style.cssText = "background:#7f1d1d;color:#fca5a5"
+    stBox.innerHTML = `🔴 Expired (${m.expiry})`
+    payBtn.classList.remove("hidden")
+  } else if (m.plan === "trial") {
+    stBox.style.cssText = "background:#854d0e;color:#fef08a"
+    stBox.innerHTML = `🟡 Trial Active (Ends ${m.expiry})`
+    payBtn.classList.remove("hidden")
+  } else {
+    stBox.style.cssText = "background:#064e3b;color:#34d399"
+    stBox.innerHTML = `🟢 Active (Expires ${m.expiry})`
+    payBtn.classList.add("hidden") // optionally let them renew early, keeping hidden for now
+  }
+
+  if (typeof QRious !== "undefined") {
+    new QRious({ element: document.getElementById("mem-portal-qr"), value: m.id, size: 180 })
+  }
 }
 
 // ═══════════════════════════════════════════════════════
@@ -191,7 +242,7 @@ async function selfRegister() {
 
   const newId = "GYM-" + Math.floor(Math.random() * 90000 + 10000)
   const start = new Date()
-  if (plan === "trial") start.setDate(start.getDate() + 3)
+  if (plan === "trial") start.setDate(start.getDate() + 7)
   else start.setMonth(start.getMonth() + parseInt(plan))
   const expiry = start.toISOString().split("T")[0]
 

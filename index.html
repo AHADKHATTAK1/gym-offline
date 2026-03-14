@@ -37,10 +37,10 @@
   <div class="auth-card">
     <div class="auth-logo">🏋️</div>
     <h1 class="auth-title" id="login-gymname">Gym Manager</h1>
-    <p class="auth-sub">Sign in to your admin panel</p>
+    <p class="auth-sub">Sign in to your Dashboard or Member Portal</p>
     <div class="auth-form">
-      <input id="login-user" type="text" placeholder="Username" onkeydown="if(event.key==='Enter')login()">
-      <input id="login-pass" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')login()">
+      <input id="login-user" type="text" placeholder="Username or Mobile No." onkeydown="if(event.key==='Enter')login()">
+      <input id="login-pass" type="password" placeholder="Password or Gym ID (e.g. GYM-12345)" onkeydown="if(event.key==='Enter')login()">
       <button class="btn-primary full-width" onclick="login()">🔐 Login</button>
       <div id="login-error" class="auth-error hidden"></div>
       <div style="text-align:center;margin-top:20px;border-top:1px solid var(--border);padding-top:18px">
@@ -65,7 +65,7 @@
       <input id="reg-phone" type="tel" placeholder="Phone Number *">
       <input id="reg-fee" type="number" placeholder="Monthly Membership Fee (PKR) *">
       <select id="reg-plan">
-        <option value="trial">🟡 3-Day Free Trial</option>
+        <option value="trial">🟡 7-Day Free Trial</option>
         <option value="1">1 Month</option>
         <option value="3">3 Months</option>
         <option value="6">6 Months</option>
@@ -84,6 +84,33 @@
       <p style="color:#a7f3d0;font-size:0.8rem;margin-bottom:12px">Save this QR code for gym entry!</p>
       <button class="btn-primary" style="width:100%;margin:0" onclick="closeRegisterScreen()">✅ Done</button>
     </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     MEMBER PORTAL (Logged in as Member)
+════════════════════════════════════════════════════ -->
+<div id="screen-member" class="hidden" style="min-height:100vh;background:var(--bg);color:var(--text);padding:20px;display:flex;flex-direction:column;align-items:center">
+  <div class="card" style="max-width:400px;width:100%;text-align:center;padding:30px 20px;border-color:var(--green)">
+    <div style="font-size:3rem;margin-bottom:10px">👤</div>
+    <h1 style="font-size:1.5rem;margin-bottom:5px" id="mem-portal-name">Name</h1>
+    <p style="color:var(--muted);font-size:0.9rem;margin-bottom:20px" id="mem-portal-id">GYM-12345</p>
+
+    <!-- Status Badge -->
+    <div id="mem-portal-status-box" style="padding:15px;border-radius:12px;margin-bottom:25px;font-weight:700;font-size:1.1rem;background:#064e3b;color:#34d399">
+      🟢 Active
+    </div>
+
+    <!-- QR Code -->
+    <div style="background:white;padding:15px;border-radius:12px;display:inline-block;margin-bottom:20px">
+      <canvas id="mem-portal-qr" width="180" height="180"></canvas>
+    </div>
+    <p style="color:var(--muted);font-size:0.8rem;margin-bottom:25px">Show this QR to the front desk to log attendance.</p>
+
+    <!-- Payment Button (only shows if expired/pending) -->
+    <button id="mem-portal-pay-btn" class="btn-primary full-width hidden" style="margin:0 0 15px 0;background:#4f46e5;color:#fff;font-size:1.1rem;display:flex;justify-content:center;align-items:center;gap:8px" onclick="goToPaymentGateway()">🔒 Renew via Portal</button>
+
+    <button class="btn-secondary full-width" style="margin:0" onclick="logout()">🚪 Logout</button>
   </div>
 </div>
 

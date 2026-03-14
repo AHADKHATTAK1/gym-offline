@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Gym Manager</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    body {
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    input, button {
+      padding: 10px;
+      margin: 5px;
+      border: none;
+      border-radius: 6px;
+    }
+    button {
+      background: #22c55e;
+      cursor: pointer;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    td, th {
+      border: 1px solid #333;
+      padding: 10px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>🏋️ Gym Manager Offline</h1>
+
+  <h2>Add Member</h2>
+  <input id="name" placeholder="Name">
+  <input id="phone" placeholder="Phone">
+  <input id="fee" placeholder="Monthly Fee">
+  <button onclick="addMember()">Add</button>
+
+  <input id="search" placeholder="Search..." onkeyup="loadMembers()">
+
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Phone</th>
+        <th>Fee</th>
+        <th>Payment</th>
+        <th>Attendance</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="members"></tbody>
+  </table>
+
+  <script src="app.js"></script>
+</body>
+</html>

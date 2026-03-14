@@ -585,31 +585,41 @@ async function removeExpense(id) {
 }
 
 // ═══════════════════════════════════════════════════════
-//  CHECKOUT & APPROVALS
+//  CHECKOUT & APPROVALS (PAYMENT GATEWAY)
 // ═══════════════════════════════════════════════════════
 function openCheckout(id) {
   const m=members.find(x=>x.id===id); if(!m)return
   currentCheckoutId=m.id; hide("screen-app"); show("screen-checkout")
   setText("chk-member-name",m.name+" ("+m.phone+")"); setText("chk-amount","PKR "+(+m.fee).toLocaleString())
-  setText("chk-bank-details",config.bankDetails||"Pay at desk.")
-  document.getElementById("chk-screenshot").value=""; showChkTab("local")
 }
 function cancelCheckout() { hide("screen-checkout"); show("screen-app"); currentCheckoutId=null }
-function showChkTab(tab) {
-  if(tab==="local"){show("chk-flow-local");hide("chk-flow-card");document.getElementById("tab-local").style.cssText="background:var(--green);color:#000";document.getElementById("tab-card").style.cssText="background:var(--surface2);color:var(--text)"}
-  else{hide("chk-flow-local");show("chk-flow-card");document.getElementById("tab-card").style.cssText="background:var(--green);color:#000";document.getElementById("tab-local").style.cssText="background:var(--surface2);color:var(--text)"}
+
+async function goToPaymentGateway() {
+  if (!config.stripeLink) return alert("⚠️ Please configure a Payment Gateway Link in Settings first.")
+  
+  const m = members.find(x => x.id === currentCheckoutId)
+  if (!m) return
+
+  // 1. Mark them as pending verification
+  m.status = "pending"
+  await idbPut("members", m)
+
+  // 2. Open the gateway link. Try to append the member ID for easier tracking.
+  let link = config.stripeLink
+  if (link.includes("?")) link += "&ref=" + m.id
+  else link += "?ref=" + m.id
+  
+  window.open(link, "_blank")
+  
+  toast("Redirecting to Secure Gateway... Admin will approve once paid.", "var(--blue)")
+  cancelCheckout()
+  renderMembers()
+  renderDashboard()
 }
-async function submitScreenshot() {
-  const fi=document.getElementById("chk-screenshot"); if(!fi.files[0])return alert("Select a screenshot.")
-  const reader=new FileReader(); reader.onload=async function(e){
-    const m=members.find(x=>x.id===currentCheckoutId); m.status="pending"; m.paymentProof=e.target.result
-    await idbPut("members",m); toast("📤 Submitted!","var(--blue)"); cancelCheckout(); renderMembers(); renderDashboard()
-  }; reader.readAsDataURL(fi.files[0])
-}
-function goToStripe() { if(!config.stripeLink)return alert("Stripe link not set."); window.open(config.stripeLink,"_blank") }
+
 function viewScreenshot(id) {
-  const m=members.find(x=>x.id===id); if(!m||!m.paymentProof)return toast("No image","var(--red)")
-  document.getElementById("view-screenshot").src=m.paymentProof; document.getElementById("approve-id").value=m.id; show("image-modal")
+  // We no longer store screenshots. Just prompt the admin to check their stripe/bank app.
+  alert(`Please check your Payment Gateway (e.g., Stripe or Bank App) to confirm you received payment for Member ID: ${id}. Once confirmed, click 'Apprv'.`)
 }
 function approvePaymentDirect(id){document.getElementById("approve-id").value=id;approvePayment()}
 async function approvePayment(){

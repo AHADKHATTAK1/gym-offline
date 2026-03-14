@@ -301,29 +301,13 @@
       <h2 style="font-size:2rem;color:var(--green);margin-top:5px" id="chk-amount">PKR 0</h2>
     </div>
 
-    <!-- Payment Types -->
-    <div class="checkout-tabs" style="display:flex;gap:10px;margin-bottom:20px">
-      <button class="btn-primary full-width" id="tab-local" onclick="showChkTab('local')" style="margin:0;background:var(--surface2);color:var(--text)">🇵🇰 Local Transfer</button>
-      <button class="btn-primary full-width" id="tab-card" onclick="showChkTab('card')" style="margin:0;background:var(--surface2);color:var(--text)">🌍 Credit Card</button>
-    </div>
-
-    <!-- Local Transfer Flow -->
-    <div id="chk-flow-local">
-      <div style="background:#064e3b;border:1px dashed #10b981;border-radius:12px;padding:15px;margin-bottom:20px;color:#a7f3d0">
-        <p style="font-size:0.8rem;text-transform:uppercase;font-weight:700;margin-bottom:5px">Send Money Here:</p>
-        <p id="chk-bank-details" style="font-size:0.95rem;line-height:1.4">Loading...</p>
+    <!-- Single Payment Gateway Flow -->
+    <div id="chk-flow-gateway">
+      <div style="background:#064e3b;border:1px dashed #10b981;border-radius:12px;padding:15px;margin-bottom:20px;color:#a7f3d0;text-align:center">
+        <p style="font-size:0.85rem;margin-bottom:8px">You will be securely redirected to our payment portal (Stripe / Bank Link).</p>
       </div>
-      <div class="form-group" style="margin-bottom:20px">
-        <label>Upload Payment Screenshot</label>
-        <input type="file" id="chk-screenshot" accept="image/*" style="padding:8px">
-      </div>
-      <button class="btn-primary full-width" style="margin:0" onclick="submitScreenshot()">📤 Submit Request</button>
-    </div>
-
-    <!-- Card Flow -->
-    <div id="chk-flow-card" class="hidden">
-      <p style="color:var(--muted);font-size:0.9rem;text-align:center;margin-bottom:20px">You will be redirected to our secure Stripe checkout page.</p>
-      <button class="btn-primary full-width" style="margin:0;background:#6366f1;color:#fff" onclick="goToStripe()">💳 Pay securely with Stripe</button>
+      <button class="btn-primary full-width" style="margin:0;background:#4f46e5;color:#fff;font-size:1.1rem;display:flex;justify-content:center;align-items:center;gap:8px" onclick="goToPaymentGateway()">🔒 Pay Securely via Link</button>
+      <p style="text-align:center;margin-top:15px;font-size:0.8rem;color:var(--muted)">Once paid, the Admin will verify your transaction.</p>
     </div>
   </div>
 </div>

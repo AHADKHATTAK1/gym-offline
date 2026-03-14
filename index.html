@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gym Manager Pro V4</title>
+  <title>Gym Manager Pro V5</title>
   <link rel="manifest" href="manifest.json">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
@@ -43,6 +43,46 @@
       <input id="login-pass" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')login()">
       <button class="btn-primary full-width" onclick="login()">🔐 Login</button>
       <div id="login-error" class="auth-error hidden"></div>
+      <div style="text-align:center;margin-top:20px;border-top:1px solid var(--border);padding-top:18px">
+        <p style="color:var(--muted);font-size:0.85rem;margin-bottom:10px">New member? Join the gym!</p>
+        <button class="btn-secondary" style="width:100%" onclick="openRegisterScreen()">📝 Register Now</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SELF-REGISTRATION SCREEN (Member Kiosk)
+════════════════════════════════════════════════════ -->
+<div id="screen-register" class="auth-screen hidden">
+  <div class="auth-card" style="max-width:480px">
+    <button class="btn-secondary sm" style="margin-bottom:15px" onclick="closeRegisterScreen()">← Back to Login</button>
+    <div class="auth-logo">📝</div>
+    <h1 class="auth-title">Join <span id="reg-gymname">the Gym</span></h1>
+    <p class="auth-sub">Fill in your details to start your 3-Day Free Trial!</p>
+    <div class="auth-form">
+      <input id="reg-name" type="text" placeholder="Full Name *">
+      <input id="reg-phone" type="tel" placeholder="Phone Number *">
+      <input id="reg-fee" type="number" placeholder="Monthly Membership Fee (PKR) *">
+      <select id="reg-plan">
+        <option value="trial">🟡 3-Day Free Trial</option>
+        <option value="1">1 Month</option>
+        <option value="3">3 Months</option>
+        <option value="6">6 Months</option>
+        <option value="12">1 Year</option>
+      </select>
+      <button class="btn-primary full-width" onclick="selfRegister()">🚀 Register & Start Trial</button>
+      <div id="reg-error" class="auth-error hidden"></div>
+    </div>
+    <!-- Success Box (shown after register) -->
+    <div id="reg-success" class="hidden" style="text-align:center;margin-top:20px;padding:25px;background:#064e3b;border:1px solid #10b981;border-radius:14px">
+      <div style="font-size:3rem">✅</div>
+      <h3 id="reg-success-msg" style="margin:10px 0;color:#34d399">Welcome!</h3>
+      <p style="color:#a7f3d0;font-size:0.9rem">Your Member ID:</p>
+      <div id="reg-member-id" style="background:#000;padding:12px;border-radius:8px;font-size:1.4rem;font-weight:800;color:var(--green);letter-spacing:2px;margin:12px 0"></div>
+      <div style="background:white;padding:10px;border-radius:8px;display:inline-block;margin-bottom:12px"><canvas id="reg-qr" width="150" height="150"></canvas></div>
+      <p style="color:#a7f3d0;font-size:0.8rem;margin-bottom:12px">Save this QR code for gym entry!</p>
+      <button class="btn-primary" style="width:100%;margin:0" onclick="closeRegisterScreen()">✅ Done</button>
     </div>
   </div>
 </div>
@@ -61,6 +101,7 @@
       <button class="nav-item" id="nav-members" onclick="showPage('members')"><span>👥</span> Members</button>
       <button class="nav-item" id="nav-finances" onclick="showPage('finances')"><span>💰</span> Finances</button>
       <button class="nav-item scanner-btn" onclick="openScanner()"><span>📷</span> Scanner</button>
+      <button class="nav-item" style="background:#1e3a8a;color:#bfdbfe;font-weight:600" onclick="openRegisterFromAdmin()"><span>📝</span> Register</button>
       <button class="nav-item" id="nav-settings" onclick="showPage('settings')"><span>⚙️</span> Settings</button>
     </nav>
     <button class="logout-btn" onclick="logout()">🚪 Logout</button>
@@ -186,6 +227,26 @@
             <input id="set-stripe" type="url" placeholder="https://buy.stripe.com/...">
             <button class="btn-primary" onclick="saveBankDetails()">💳 Save Payments Info</button>
           </div>
+        </div>
+      </div>
+
+      <!-- Staff / Multi-User Management -->
+      <div class="card" style="border-color:#1e3a8a">
+        <h3 style="margin-bottom:18px">👤 Staff Accounts <span style="font-size:0.78rem;color:var(--muted);font-weight:400">(multi-user login)</span></h3>
+        <div class="table-wrap" style="margin-bottom:20px">
+          <table>
+            <thead><tr><th>Username</th><th>Role</th><th>Action</th></tr></thead>
+            <tbody id="staff-list"></tbody>
+          </table>
+        </div>
+        <div class="search-row">
+          <input type="text" id="new-staff-user" placeholder="New Username">
+          <input type="password" id="new-staff-pass" placeholder="Password">
+          <select id="new-staff-role" style="width:auto;min-width:120px">
+            <option value="admin">🛡️ Admin</option>
+            <option value="staff">👤 Staff</option>
+          </select>
+          <button class="btn-primary sm" onclick="addStaff()">➕ Add Staff</button>
         </div>
       </div>
     </section>

@@ -11,6 +11,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -109,6 +110,8 @@
 
     <!-- Payment Button (only shows if expired/pending) -->
     <button id="mem-portal-pay-btn" class="btn-primary full-width hidden" style="margin:0 0 15px 0;background:#4f46e5;color:#fff;font-size:1.1rem;display:flex;justify-content:center;align-items:center;gap:8px" onclick="goToPaymentGateway()">🔒 Renew via Portal</button>
+
+    <button class="btn-primary sm full-width" style="margin:0 0 15px 0;background:var(--surface2);color:var(--text)" onclick="downloadMemberCard()">📄 Download Member Card</button>
 
     <button class="btn-secondary full-width" style="margin:0" onclick="logout()">🚪 Logout</button>
   </div>

@@ -205,6 +205,46 @@ function launchMemberPortal(m) {
   }
 }
 
+function downloadMemberCard() {
+  const mId = document.getElementById("mem-portal-id").textContent;
+  const m = members.find(x => x.id === mId);
+  if (!m) return;
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: [85, 55] }); // Credit card size
+
+  // Background
+  doc.setFillColor(30, 41, 59); // var(--surface)
+  doc.rect(0, 0, 55, 85, "F");
+
+  // Gym Name
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.text(config.gymName || "Gym Manager", 27.5, 10, { align: "center" });
+
+  // Member Name
+  doc.setFontSize(10);
+  doc.text(m.name, 27.5, 20, { align: "center" });
+
+  // Member ID
+  doc.setFontSize(8);
+  doc.setTextColor(148, 163, 184); // var(--muted)
+  doc.text(m.id, 27.5, 25, { align: "center" });
+
+  // QR Code
+  const qrCanvas = document.getElementById("mem-portal-qr");
+  const qrDataMap = qrCanvas.toDataURL("image/png");
+  doc.addImage(qrDataMap, "PNG", 10, 32, 35, 35);
+
+  // Status
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(8);
+  doc.text("Valid Membership Card", 27.5, 75, { align: "center" });
+
+  doc.save(`${m.name}_Card.pdf`);
+}
+
 // ═══════════════════════════════════════════════════════
 //  SELF-REGISTRATION (Member fills in their own form)
 // ═══════════════════════════════════════════════════════
@@ -702,7 +742,18 @@ async function onScanSuccess(decodedText){
   else{
     setText("scan-name",m.name)
     if(m.expiry<todayISO()){document.getElementById("scan-result").style.cssText="background:#7f1d1d;border-color:#ef4444";setText("scan-status","⚠️ Expired.")}
-    else{m.visits=(m.visits||0)+1; await idbPut("members",m); document.getElementById("scan-result").style.cssText="background:#064e3b;border-color:#10b981";setText("scan-status","✅ Logged!")}
+    else{
+      m.visits=(m.visits||0)+1; await idbPut("members",m); 
+      document.getElementById("scan-result").style.cssText="background:#064e3b;border-color:#10b981";setText("scan-status","✅ Logged!")
+      
+      // Auto WhatsApp Notification if online
+      if (navigator.onLine) {
+        const waNum = parsePhoneToWA(m.phone)
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        const text = `Hi ${m.name}, your attendance at ${config.gymName || 'the gym'} is logged! 🏋️ Time: ${time}`
+        window.open(`https://wa.me/${waNum}?text=${encodeURIComponent(text)}`, "_blank")
+      }
+    }
   }
   playSound(); setTimeout(closeScanner,3000)
 }

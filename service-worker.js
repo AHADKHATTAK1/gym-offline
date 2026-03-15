@@ -1,4 +1,4 @@
-const CACHE_NAME = "gym-app-v2"
+const CACHE_NAME = "gym-app-v9"
 const urlsToCache = [
   "/",
   "/index.html",

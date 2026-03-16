@@ -810,8 +810,15 @@ function checkAppSubscription() {
 }
 
 function manualUnlock() {
-  const code = val("unlock-code")
-  if (code === "GYM-PRO-UNLOCK") {
+  const code = val("unlock-code").toUpperCase().trim()
+  
+  if (code === "500596") {
+    // Referral code: Unlimited / Lifetime access
+    config.appSubscriptionExpiry = "2099-12-31"
+    saveConfig(); toast("🎉 Referral Code Accepted! Unlimited Access Activated!")
+    hide("screen-software-lock"); initApp()
+  } else if (code === "GYM-PRO-UNLOCK") {
+    // Standard 30-day manual unlock
     const d = new Date()
     d.setMonth(d.getMonth() + 1)
     config.appSubscriptionExpiry = d.toISOString().split("T")[0]

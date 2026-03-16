@@ -26,13 +26,14 @@
     <p class="auth-sub" style="margin-bottom:30px">Your 3-day trial or monthly subscription has ended.<br>To continue using Gym Manager, please pay the $5 service fee.</p>
     
     <div class="auth-form">
-      <button class="btn-primary full-width" style="background:#ef4444;font-size:1.2rem;padding:18px" onclick="window.open('https://buy.stripe.com/software-subscription-link', '_blank')">💳 Pay $5 to Unlock</button>
+      <button class="btn-primary full-width" style="background:#ef4444;font-size:1.2rem;padding:18px" onclick="openSoftwarePayment()">💳 Pay $5 to Unlock</button>
       <p style="margin-top:20px;font-size:0.85rem;color:var(--muted)">After payment, your app will be unlocked automatically within 24 hours (or enter your manual code below).</p>
       
       <div style="margin-top:25px;padding-top:20px;border-top:1px solid #334155">
         <input id="unlock-code" type="text" placeholder="Enter Activation Code" style="text-align:center;letter-spacing:4px">
         <button class="btn-secondary full-width" onclick="manualUnlock()">🔓 Unlock via Code</button>
       </div>
+      <a id="lock-wa-support" href="https://wa.me/92?text=Hi%2C%20I%20need%20to%20renew%20my%20Gym%20Manager%20subscription" target="_blank" style="display:block;margin-top:20px;font-size:0.85rem;color:#34d399">💬 Contact Support via WhatsApp</a>
     </div>
   </div>
 </div>

@@ -822,6 +822,18 @@ function manualUnlock() {
   }
 }
 
+function openSoftwarePayment() {
+  // Use the stripe link from Settings if configured, or fallback to WhatsApp support
+  const link = config.stripeLink
+  if (link) {
+    const ref = encodeURIComponent(config.gymName || "GymOwner")
+    window.open(link + (link.includes("?") ? "&ref=" : "?ref=") + ref + "_Sub5", "_blank")
+  } else {
+    const msg = encodeURIComponent("Hi, I want to subscribe to Gym Manager Pro for $5/month. Gym: " + (config.gymName || ""))
+    window.open("https://wa.me/92?text=" + msg, "_blank")
+  }
+}
+
 function downloadQR(){const c=document.getElementById("member-qr"),a=document.createElement("a");a.href=c.toDataURL("image/png");a.download="QR.png";a.click()}
 function exportCSV(){if(!members.length)return toast("No data");const b=new Blob(["ID,Name,Phone,Plan,Fee,Expiry,Visits\n"+members.map(m=>`${m.id},${m.name},${m.phone},${m.plan},${m.fee},${m.expiry},${m.visits||0}`).join("\n")],{type:"text/csv"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="members.csv";a.click()}
 

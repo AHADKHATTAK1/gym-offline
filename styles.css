@@ -29,7 +29,7 @@ html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--b
 .auth-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; background: radial-gradient(circle at top right, #1e1b4b, #030712); }
 .auth-card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 48px; width: 100%; max-width: 440px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); }
 .auth-logo { font-size: 3.5rem; text-align: center; filter: drop-shadow(0 0 15px var(--green-glow)); margin-bottom: 20px; }
-.auth-title { font-size: 1.75rem; font-weight: 800; text-align: center; background: linear-gradient(to bottom right, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.auth-title { font-size: 1.75rem; font-weight: 800; text-align: center; background: linear-gradient(to bottom right, #fff, #94a3b8); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
 .auth-sub { color: var(--muted); font-size: 0.95rem; text-align: center; margin-bottom: 32px; font-weight: 500; }
 .auth-form label, .form-group label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--muted); margin-bottom: 8px; margin-top: 16px; text-transform: uppercase; letter-spacing: 0.05em; }
 .auth-error { background: rgba(127, 29, 29, 0.2); border: 1px solid var(--red); color: #fecaca; border-radius: 12px; padding: 12px; font-size: 0.85rem; margin-top: 16px; display: flex; align-items: center; gap: 8px; }
@@ -144,6 +144,14 @@ td { padding: 11px 10px; border-bottom: 1px solid var(--border); vertical-align:
 .badge.expired { background: #7f1d1d; color: #fca5a5; border: 1px solid #991b1b; }
 .badge.trial { background: #451a03; color: #fbbf24; border: 1px solid #b45309; }
 .badge.pending { background: #1e3a8a; color: #93c5fd; border: 1px dashed #3b82f6; cursor: pointer; }
+
+/* ═══════════════════════════════════════════════
+   PORTAL & KIOSK UI
+═══════════════════════════════════════════════ */
+.portal-card { max-width: 400px; width: 100%; text-align: center; border-color: var(--green) !important; padding: 40px 24px !important; }
+.status-badge { padding: 16px; border-radius: 16px; margin-bottom: 24px; font-weight: 800; font-size: 1.1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.success-box { text-align: center; margin-top: 24px; padding: 32px; background: rgba(6, 78, 59, 0.4); border: 1px solid var(--green); border-radius: 20px; backdrop-filter: blur(4px); }
+.member-id-display { background: #000; padding: 14px; border-radius: 12px; font-size: 1.6rem; font-weight: 900; color: var(--green); letter-spacing: 3px; margin: 16px 0; border: 1px solid rgba(16, 185, 129, 0.3); }
 
 /* ═══════════════════════════════════════════════
    PRINT STYLES FOR DIET PLAN

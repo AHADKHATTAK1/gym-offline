@@ -99,14 +99,14 @@
       <div id="reg-error" class="auth-error hidden"></div>
     </div>
     <!-- Success Box (shown after register) -->
-    <div id="reg-success" class="hidden" style="text-align:center;margin-top:20px;padding:25px;background:#064e3b;border:1px solid #10b981;border-radius:14px">
-      <div style="font-size:3rem">✅</div>
-      <h3 id="reg-success-msg" style="margin:10px 0;color:#34d399">Welcome!</h3>
-      <p style="color:#a7f3d0;font-size:0.9rem">Your Member ID:</p>
-      <div id="reg-member-id" style="background:#000;padding:12px;border-radius:8px;font-size:1.4rem;font-weight:800;color:var(--green);letter-spacing:2px;margin:12px 0"></div>
-      <div style="background:white;padding:10px;border-radius:8px;display:inline-block;margin-bottom:12px"><canvas id="reg-qr" width="150" height="150"></canvas></div>
-      <p style="color:#a7f3d0;font-size:0.8rem;margin-bottom:12px">Save this QR code for gym entry!</p>
-      <button class="btn-primary" style="width:100%;margin:0" onclick="closeRegisterScreen()">✅ Done</button>
+    <div id="reg-success" class="hidden success-box">
+      <div style="font-size:3.5rem">✨</div>
+      <h2 id="reg-success-msg" style="margin:10px 0; color:var(--green)">Welcome aboard!</h2>
+      <p style="color:var(--muted); font-size:0.95rem">Your unique Member ID is ready:</p>
+      <div id="reg-member-id" class="member-id-display"></div>
+      <div style="background:white; padding:15px; border-radius:12px; display:inline-block; margin-bottom:15px; box-shadow:0 10px 20px rgba(0,0,0,0.2)"><canvas id="reg-qr" width="160" height="160"></canvas></div>
+      <p style="color:var(--muted); font-size:0.85rem; margin-bottom:20px">Take a screenshot of this QR for gym entry!</p>
+      <button class="btn-primary full-width" style="margin:0" onclick="closeRegisterScreen()">✅ Let's Go!</button>
     </div>
   </div>
 </div>
@@ -114,22 +114,22 @@
 <!-- ═══════════════════════════════════════════════════
      MEMBER PORTAL (Logged in as Member)
 ════════════════════════════════════════════════════ -->
-<div id="screen-member" class="hidden" style="min-height:100vh;background:var(--bg);color:var(--text);padding:20px;display:flex;flex-direction:column;align-items:center">
-  <div class="card" style="max-width:400px;width:100%;text-align:center;padding:30px 20px;border-color:var(--green)">
-    <div style="font-size:3rem;margin-bottom:10px">👤</div>
-    <h1 style="font-size:1.5rem;margin-bottom:5px" id="mem-portal-name">Name</h1>
-    <p style="color:var(--muted);font-size:0.9rem;margin-bottom:20px" id="mem-portal-id">GYM-12345</p>
+<div id="screen-member" class="hidden auth-screen">
+  <div class="card portal-card">
+    <div class="auth-logo" style="margin-bottom:15px">👤</div>
+    <h1 id="mem-portal-name" style="font-size:1.75rem; font-weight:800; margin-bottom:4px">Member Name</h1>
+    <p id="mem-portal-id" style="color:var(--muted); font-size:1rem; font-weight:600; margin-bottom:24px; letter-spacing:1px">GYM-00000</p>
 
     <!-- Status Badge -->
-    <div id="mem-portal-status-box" style="padding:15px;border-radius:12px;margin-bottom:25px;font-weight:700;font-size:1.1rem;background:#064e3b;color:#34d399">
+    <div id="mem-portal-status-box" class="status-badge">
       🟢 Active
     </div>
 
     <!-- QR Code -->
-    <div style="background:white;padding:15px;border-radius:12px;display:inline-block;margin-bottom:20px">
+    <div style="background:white; padding:20px; border-radius:20px; display:inline-block; margin-bottom:20px; box-shadow:var(--shadow-lg)">
       <canvas id="mem-portal-qr" width="180" height="180"></canvas>
     </div>
-    <p style="color:var(--muted);font-size:0.8rem;margin-bottom:25px">Show this QR to the front desk to log attendance.</p>
+    <p style="color:var(--muted); font-size:0.9rem; margin-bottom:32px">Scan this QR at the entrance to log your visit.</p>
 
     <!-- Payment Button (only shows if expired/pending) -->
     <button id="mem-portal-pay-btn" class="btn-primary full-width hidden" style="margin:0 0 15px 0;background:#4f46e5;color:#fff;font-size:1.1rem;display:flex;justify-content:center;align-items:center;gap:8px" onclick="goToPaymentGateway()">🔒 Renew via Portal</button>

@@ -101,6 +101,9 @@ async function initApp() {
 
   if (!config) return show("screen-setup")
 
+  // V11: Software Subscription Guard
+  if (checkAppSubscription()) return
+
   // Ensure users array exists
   if (!config.users) { config.users = [{ user: config.user, pass: config.pass, role: "admin" }]; saveConfig() }
 
@@ -121,7 +124,18 @@ function setupGym() {
   const gymName = val("setup-gymname"), user = val("setup-user"), pass = val("setup-pass")
   if (!gymName || !user || !pass) return showErr("setup-error", "All fields required.")
   if (pass !== val("setup-pass2"))  return showErr("setup-error", "Passwords do not match.")
-  config = { gymName, user, pass, bankDetails: "", stripeLink: "", users: [{ user, pass, role: "admin" }] }
+  
+  // V11: Set initial 3-day trial for the software itself
+  const trialExpiry = new Date()
+  trialExpiry.setDate(trialExpiry.getDate() + 3)
+  
+  config = { 
+    gymName, user, pass, 
+    bankDetails: "", stripeLink: "", 
+    users: [{ user, pass, role: "admin" }],
+    appSubscriptionExpiry: trialExpiry.toISOString().split("T")[0]
+  }
+  
   saveConfig(); currentUser = { user, role: "admin" }
   sessionStorage.setItem(KEY_SESSION, JSON.stringify(currentUser)); launchApp()
 }
@@ -157,6 +171,7 @@ function logout() {
 }
 
 function launchApp() {
+  if (checkAppSubscription()) return
   if (currentUser?.type === "member") return launchMemberPortal(members.find(x=>x.id===currentUser.id))
   
   hide("screen-setup"); hide("screen-login"); hide("screen-register"); hide("screen-member"); show("screen-app")
@@ -337,6 +352,7 @@ function removeStaff(username) {
 //  NAVIGATION
 // ═══════════════════════════════════════════════════════
 function showPage(page) {
+  if (checkAppSubscription()) return
   document.querySelectorAll(".page").forEach(el => el.classList.add("hidden"))
   document.querySelectorAll(".nav-item").forEach(el => el.classList.remove("active"))
   show("page-" + page); document.getElementById("nav-" + page)?.classList.add("active")
@@ -778,6 +794,34 @@ function todayISO(){return new Date().toISOString().split("T")[0]}
 function showErr(id,msg){const el=document.getElementById(id);el.textContent=msg;el.classList.remove("hidden")}
 function toggleSidebar(){document.getElementById("sidebar").classList.toggle("open")}
 function closeSidebar(){document.getElementById("sidebar").classList.remove("open")}
+
+// ═══════════════════════════════════════════════════════
+//  V11: SOFTWARE SUBSCRIPTION LOGIC
+// ═══════════════════════════════════════════════════════
+function checkAppSubscription() {
+  if (!config || !config.appSubscriptionExpiry) return false
+  const today = new Date().toISOString().split("T")[0]
+  if (today > config.appSubscriptionExpiry) {
+    hide("screen-app"); hide("screen-setup"); hide("screen-login"); hide("screen-member"); hide("screen-register")
+    show("screen-software-lock")
+    return true
+  }
+  return false
+}
+
+function manualUnlock() {
+  const code = val("unlock-code")
+  if (code === "GYM-PRO-UNLOCK") {
+    const d = new Date()
+    d.setMonth(d.getMonth() + 1)
+    config.appSubscriptionExpiry = d.toISOString().split("T")[0]
+    saveConfig(); toast("✅ Software Unlocked for 30 Days!")
+    hide("screen-software-lock"); initApp()
+  } else {
+    toast("❌ Invalid Activation Code!","var(--red)")
+  }
+}
+
 function downloadQR(){const c=document.getElementById("member-qr"),a=document.createElement("a");a.href=c.toDataURL("image/png");a.download="QR.png";a.click()}
 function exportCSV(){if(!members.length)return toast("No data");const b=new Blob(["ID,Name,Phone,Plan,Fee,Expiry,Visits\n"+members.map(m=>`${m.id},${m.name},${m.phone},${m.plan},${m.fee},${m.expiry},${m.visits||0}`).join("\n")],{type:"text/csv"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="members.csv";a.click()}
 

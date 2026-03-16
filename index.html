@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gym Manager Pro V9</title>
+  <title>Gym Manager Pro V11</title>
   <link rel="manifest" href="manifest.json">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
@@ -14,6 +14,28 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
+
+<!-- ═══════════════════════════════════════════════════
+     SOFTWARE SUBSCRIPTION LOCK SCREEN
+     (Triggers after 3-day trial or when $5/mo expires)
+════════════════════════════════════════════════════ -->
+<div id="screen-software-lock" class="auth-screen hidden" style="z-index:9999;background:linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)">
+  <div class="auth-card" style="border-color:#ef4444;text-align:center">
+    <div style="font-size:4rem;margin-bottom:20px">🔒</div>
+    <h1 class="auth-title" style="color:#f87171">Subscription Expired</h1>
+    <p class="auth-sub" style="margin-bottom:30px">Your 3-day trial or monthly subscription has ended.<br>To continue using Gym Manager, please pay the $5 service fee.</p>
+    
+    <div class="auth-form">
+      <button class="btn-primary full-width" style="background:#ef4444;font-size:1.2rem;padding:18px" onclick="window.open('https://buy.stripe.com/software-subscription-link', '_blank')">💳 Pay $5 to Unlock</button>
+      <p style="margin-top:20px;font-size:0.85rem;color:var(--muted)">After payment, your app will be unlocked automatically within 24 hours (or enter your manual code below).</p>
+      
+      <div style="margin-top:25px;padding-top:20px;border-top:1px solid #334155">
+        <input id="unlock-code" type="text" placeholder="Enter Activation Code" style="text-align:center;letter-spacing:4px">
+        <button class="btn-secondary full-width" onclick="manualUnlock()">🔓 Unlock via Code</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ═══════════════════════════════════════════════════
      SETUP & LOGIN
@@ -136,7 +158,7 @@
       <button class="nav-item" id="nav-settings" onclick="showPage('settings')"><span>⚙️</span> Settings</button>
     </nav>
     <button class="logout-btn" onclick="logout()">🚪 Logout</button>
-    <div style="font-size:0.75rem; color:var(--muted); text-align:center; padding: 15px 0;">App Version: V9.0</div>
+    <div style="font-size:0.75rem; color:var(--muted); text-align:center; padding: 15px 0;">App Version: V11.0</div>
   </aside>
 
   <div class="main-content">

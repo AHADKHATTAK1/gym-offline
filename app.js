@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════
-   GYM MANAGER PRO V5 – app.js
+   GYM MANAGER PRO V12 – app.js
    Features: Offline PWA | QR | Trials | Payments | Diet
              Self-Registration | Multi-User | IndexedDB
 ═══════════════════════════════════════════════════════ */
@@ -843,6 +843,31 @@ function openSoftwarePayment() {
 
 function downloadQR(){const c=document.getElementById("member-qr"),a=document.createElement("a");a.href=c.toDataURL("image/png");a.download="QR.png";a.click()}
 function exportCSV(){if(!members.length)return toast("No data");const b=new Blob(["ID,Name,Phone,Plan,Fee,Expiry,Visits\n"+members.map(m=>`${m.id},${m.name},${m.phone},${m.plan},${m.fee},${m.expiry},${m.visits||0}`).join("\n")],{type:"text/csv"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="members.csv";a.click()}
+
+function triggerCSVImport(){document.getElementById("csv-import-input").click()}
+async function importMembersFromCSV(e) {
+  const file = e.target.files[0]; if (!file) return
+  const reader = new FileReader()
+  reader.onload = async (event) => {
+    const text = event.target.result; const lines = text.split("\n").filter(l=>l.trim().length > 0)
+    if (lines.length < 2) return toast("❌ Invalid CSV format","var(--red)")
+    let count = 0
+    for(let i=1; i<lines.length; i++){
+      const cols = lines[i].split(",").map(c=>c.trim())
+      if(cols.length < 2) continue
+      const m = {
+        id: cols[0] || "M-"+Math.floor(Math.random()*9999), name: cols[1], phone: cols[2]||"",
+        plan: cols[3]||"Standard", fee: parseFloat(cols[4])||0, expiry: cols[5]||todayISO(),
+        visits: parseInt(cols[6])||0, payments: []
+      }
+      await idbPut("members", m); count++
+    }
+    members = await idbGetAll("members"); renderMembers(); renderDashboard()
+    toast(`✅ Imported ${count} members successfully!`)
+    e.target.value = ""
+  }
+  reader.readAsText(file)
+}
 
 let tId;function toast(msg,bg="var(--green)"){
   const el=document.getElementById("toast");el.textContent=msg;el.style.background=bg;el.style.color=bg==="var(--green)"?"#000":"#fff"

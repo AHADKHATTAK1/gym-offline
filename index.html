@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gym Manager Pro V11</title>
+  <title>Gym Manager Pro V12</title>
   <link rel="manifest" href="manifest.json">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
@@ -159,7 +159,7 @@
       <button class="nav-item" id="nav-settings" onclick="showPage('settings')"><span>⚙️</span> Settings</button>
     </nav>
     <button class="logout-btn" onclick="logout()">🚪 Logout</button>
-    <div style="font-size:0.75rem; color:var(--muted); text-align:center; padding: 15px 0;">App Version: V11.0</div>
+    <div style="font-size:0.75rem; color:var(--muted); text-align:center; padding: 15px 0;">App Version: V12.0</div>
   </aside>
 
   <div class="main-content">
@@ -244,6 +244,8 @@
             <option value="pending">⏳ Pending Appr</option>
           </select>
           <button class="btn-secondary sm" onclick="exportCSV()">📥 Export</button>
+          <button class="btn-secondary sm" onclick="triggerCSVImport()">📤 Import</button>
+          <input type="file" id="csv-import-input" accept=".csv" style="display:none" onchange="importMembersFromCSV(event)">
         </div>
       </div>
       <div class="card">

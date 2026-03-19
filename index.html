@@ -83,7 +83,7 @@
     <button class="btn-secondary sm" style="margin-bottom:15px" onclick="closeRegisterScreen()">← Back to Login</button>
     <div class="auth-logo">📝</div>
     <h1 class="auth-title">Join <span id="reg-gymname">the Gym</span></h1>
-    <p class="auth-sub">Fill in your details to start your 3-Day Free Trial!</p>
+    <p class="auth-sub">Fill in your details to start your 7-Day Free Trial!</p>
     <div class="auth-form">
       <input id="reg-name" type="text" placeholder="Full Name *">
       <input id="reg-phone" type="tel" placeholder="Phone Number *">
@@ -338,6 +338,16 @@
           <button class="btn-primary sm" onclick="addStaff()">➕ Add Staff</button>
         </div>
       </div>
+
+      <!-- App Subscription Status -->
+      <div class="card" style="border-color:#7c3aed">
+        <h3 style="margin-bottom:18px">🔑 App Subscription</h3>
+        <p id="sub-expiry-label" style="color:var(--muted);font-size:0.9rem;margin-bottom:16px"></p>
+        <div class="search-row">
+          <input type="text" id="sub-unlock-code" placeholder="Enter Activation Code" style="text-align:center;letter-spacing:3px">
+          <button class="btn-primary sm" onclick="applyUnlockCode()">🔓 Apply Code</button>
+        </div>
+      </div>
     </section>
   </div>
 </div>
@@ -383,7 +393,7 @@
         <div class="form-group"><label>Fee (PKR) *</label><input id="m-fee" type="number"></div>
         <div class="form-group"><label>Plan Duration</label>
           <select id="m-plan">
-            <option value="trial" style="background:var(--yellow);color:#000;font-weight:700">🟡 3-Day Trial (Free)</option>
+            <option value="trial" style="background:var(--yellow);color:#000;font-weight:700">🟡 7-Day Trial (Free)</option>
             <option value="1">1 Month</option>
             <option value="3">3 Months</option>
             <option value="6">6 Months</option>

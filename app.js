@@ -64,6 +64,7 @@ function idbClear(storeName) {
 // ═══════════════════════════════════════════════════════
 const KEY_CONFIG  = "gymConfigV5"
 const KEY_SESSION = "gymSessionV5"
+const LIFETIME_EXPIRY = "2099-12-31"
 
 let members  = []   // In-memory cache (loaded from IndexedDB on launch)
 let expenses = []   // Same
@@ -183,6 +184,7 @@ function launchApp() {
   document.getElementById("set-stripe").value = config.stripeLink || ""
   document.getElementById("exp-date").value = todayISO()
   renderStaffList()
+  renderSubscriptionStatus()
   showPage("dashboard")
 }
 
@@ -356,10 +358,12 @@ function showPage(page) {
   document.querySelectorAll(".page").forEach(el => el.classList.add("hidden"))
   document.querySelectorAll(".nav-item").forEach(el => el.classList.remove("active"))
   show("page-" + page); document.getElementById("nav-" + page)?.classList.add("active")
+  setText("topbar-title", document.getElementById("nav-" + page)?.textContent?.trim() || page.charAt(0).toUpperCase() + page.slice(1))
   closeSidebar()
   if (page === "dashboard")  renderDashboard()
   if (page === "members")    renderMembers()
   if (page === "finances")   renderFinances()
+  if (page === "settings")   renderSubscriptionStatus()
   if (page === "attendance") {
     document.getElementById("att-date").value = todayISO()
     renderAttendance()
@@ -417,26 +421,45 @@ function renderDashboard() {
     appTab.innerHTML = pending.map(m => `<tr><td><strong>${esc(m.name)}</strong></td><td>${m.plan}m / PKR ${m.fee}</td><td><button class="tbtn tbtn-edit" onclick="viewScreenshot('${m.id}')">🧾 View</button></td><td><button class="tbtn tbtn-pay" onclick="approvePaymentDirect('${m.id}')">✅ Apprv</button></td></tr>`).join("")
   } else appBox.style.display = "none"
 
-  drawCharts(rev, expTotal)
+  drawCharts()
 }
 
-function drawCharts(curRev, curExp) {
+function drawCharts() {
   if (revChart) revChart.destroy(); if (attChart) attChart.destroy()
   Chart.defaults.color = "#94a3b8"; Chart.defaults.font.family = "Inter"
 
+  // Build real per-month data for the last 6 months
+  const monthKeys = [], monthLabels = []
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date()
+    d.setDate(1)
+    d.setMonth(d.getMonth() - i)
+    monthKeys.push(d.toISOString().substring(0, 7))
+    monthLabels.push(d.toLocaleString("en-US", { month: "short", year: "2-digit" }))
+  }
+
+  const revData = monthKeys.map(k =>
+    members.filter(m => m.date && m.date.startsWith(k)).reduce((s, m) => s + (+m.fee || 0), 0)
+  )
+  const expData = monthKeys.map(k =>
+    expenses.filter(e => e.date && e.date.startsWith(k)).reduce((s, e) => s + (+e.amount || 0), 0)
+  )
+  const attData = monthKeys.map(k =>
+    members.reduce((s, m) => s + (m.attendLog || []).filter(d => d.startsWith(k)).length, 0)
+  )
+
   revChart = new Chart(document.getElementById('revenueChart').getContext('2d'), {
-    type: 'line', data: { labels: ["Jan","Feb","Mar","Apr","May","Jun"],
+    type: 'line', data: { labels: monthLabels,
       datasets: [
-        { label: 'Revenue', data: [12000,19000,15000,22000,30000, curRev], borderColor: '#10b981', backgroundColor: '#10b98122', fill: true, tension: 0.4 },
-        { label: 'Expenses', data: [5000,8000,7000,12000,9000, curExp], borderColor: '#ef4444', backgroundColor: 'transparent', tension: 0.4, borderDash: [5,5] }
+        { label: 'Revenue', data: revData, borderColor: '#10b981', backgroundColor: '#10b98122', fill: true, tension: 0.4 },
+        { label: 'Expenses', data: expData, borderColor: '#ef4444', backgroundColor: 'transparent', tension: 0.4, borderDash: [5,5] }
       ]
     }, options: { responsive: true, maintainAspectRatio: false, plugins:{legend:{display:true, position:'bottom'}} }
   })
 
-  const attTotal = members.reduce((s,m) => s+(m.visits||0), 0)
   attChart = new Chart(document.getElementById('attendanceChart').getContext('2d'), {
-    type: 'bar', data: { labels: ["Jan","Feb","Mar","Apr","May","Jun"],
-      datasets: [{ label: 'Visits', data: [50,80,120,90,150,attTotal], backgroundColor: '#3b82f6', borderRadius: 4 }]
+    type: 'bar', data: { labels: monthLabels,
+      datasets: [{ label: 'Visits', data: attData, backgroundColor: '#3b82f6', borderRadius: 4 }]
     }, options: { responsive: true, maintainAspectRatio: false, plugins:{legend:{display:false}} }
   })
 }
@@ -520,27 +543,6 @@ function printAttendance() {
     <p style="margin-top:20px;font-size:12px">Present: ${visited.length} / Total: ${members.length}</p>`
   window.print()
 }
-function drawCharts2_DUMMY_REMOVED() {}  // cleanup placeholder
-function _cleanup() {
-  Chart.defaults.color = "#94a3b8"; Chart.defaults.font.family = "Inter"
-
-  revChart = new Chart(document.getElementById('revenueChart').getContext('2d'), {
-    type: 'line', data: { labels: ["Jan","Feb","Mar","Apr","May","Jun"],
-      datasets: [
-        { label: 'Revenue', data: [12000,19000,15000,22000,30000, curRev], borderColor: '#10b981', backgroundColor: '#10b98122', fill: true, tension: 0.4 },
-        { label: 'Expenses', data: [5000,8000,7000,12000,9000, curExp], borderColor: '#ef4444', backgroundColor: 'transparent', tension: 0.4, borderDash: [5,5] }
-      ]
-    }, options: { responsive: true, maintainAspectRatio: false, plugins:{legend:{display:true, position:'bottom'}} }
-  })
-
-  const attTotal = members.reduce((s,m) => s+(m.visits||0), 0)
-  attChart = new Chart(document.getElementById('attendanceChart').getContext('2d'), {
-    type: 'bar', data: { labels: ["Jan","Feb","Mar","Apr","May","Jun"],
-      datasets: [{ label: 'Visits', data: [50,80,120,90,150,attTotal], backgroundColor: '#3b82f6', borderRadius: 4 }]
-    }, options: { responsive: true, maintainAspectRatio: false, plugins:{legend:{display:false}} }
-  })
-}
-
 // ═══════════════════════════════════════════════════════
 //  MEMBERS RENDER + WHATSAPP
 // ═══════════════════════════════════════════════════════
@@ -617,7 +619,7 @@ document.getElementById("m-plan").addEventListener("change", handlePlanChange)
 function handlePlanChange() {
   const plan = document.getElementById("m-plan").value
   const start = new Date(document.getElementById("m-date").value || new Date())
-  if (plan==="trial") start.setDate(start.getDate()+3)
+  if (plan==="trial") start.setDate(start.getDate()+7)
   else start.setMonth(start.getMonth()+parseInt(plan))
   document.getElementById("m-expiry").value = start.toISOString().split("T")[0]
 }
@@ -811,23 +813,57 @@ function checkAppSubscription() {
 
 function manualUnlock() {
   const code = val("unlock-code").toUpperCase().trim()
-  
-  if (code === "500596") {
-    // Referral code: Unlimited / Lifetime access
-    config.appSubscriptionExpiry = "2099-12-31"
-    saveConfig(); toast("🎉 Referral Code Accepted! Unlimited Access Activated!")
-    hide("screen-software-lock"); initApp()
-  } else if (code === "GYM-PRO-UNLOCK") {
-    // Standard 30-day manual unlock
-    const d = new Date()
-    d.setMonth(d.getMonth() + 1)
-    config.appSubscriptionExpiry = d.toISOString().split("T")[0]
-    saveConfig(); toast("✅ Software Unlocked for 30 Days!")
+  const result = _redeemCode(code)
+  if (result) {
+    saveConfig(); toast(result)
     hide("screen-software-lock"); initApp()
   } else {
     toast("❌ Invalid Activation Code!","var(--red)")
   }
 }
+
+function renderSubscriptionStatus() {
+  const el = document.getElementById("sub-expiry-label")
+  if (!el) return
+  const expiry = config.appSubscriptionExpiry
+  if (!expiry) { el.textContent = "No subscription data found."; return }
+  const today = todayISO()
+  if (expiry === LIFETIME_EXPIRY) {
+    el.innerHTML = `<span style="color:var(--green);font-weight:700">✅ Lifetime / Unlimited Access</span>`
+  } else if (today > expiry) {
+    el.innerHTML = `<span style="color:var(--red);font-weight:700">🔴 Subscription expired on ${expiry}.</span> Enter an activation code below to renew.`
+  } else {
+    const days = Math.ceil((new Date(expiry) - new Date(today)) / 86400000)
+    el.innerHTML = `<span style="color:var(--green);font-weight:700">🟢 Active</span> — expires on <strong>${expiry}</strong> <span style="color:var(--muted)">(${days} day${days===1?'':'s'} remaining)</span>`
+  }
+}
+
+function applyUnlockCode() {
+  const code = (document.getElementById("sub-unlock-code")?.value || "").toUpperCase().trim()
+  if (!code) return toast("⚠️ Enter an activation code","var(--red)")
+  const result = _redeemCode(code)
+  if (result) {
+    saveConfig(); renderSubscriptionStatus()
+    document.getElementById("sub-unlock-code").value = ""
+    toast(result)
+  } else {
+    toast("❌ Invalid Activation Code!","var(--red)")
+  }
+}
+
+function _redeemCode(code) {
+  if (code === "500596") {
+    config.appSubscriptionExpiry = LIFETIME_EXPIRY
+    return "🎉 Referral Code Accepted! Lifetime Access Activated!"
+  } else if (code === "GYM-PRO-UNLOCK") {
+    const d = new Date()
+    d.setMonth(d.getMonth() + 1)
+    config.appSubscriptionExpiry = d.toISOString().split("T")[0]
+    return "✅ Software Unlocked for 30 Days!"
+  }
+  return null
+}
+
 
 function openSoftwarePayment() {
   // Use the stripe link from Settings if configured, or fallback to WhatsApp support
